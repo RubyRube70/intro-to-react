@@ -16,6 +16,14 @@ body {
   .status {
     margin-bottom: 10px;
   }
+
+  .newGame {
+      margin-bottom: 10px;
+  }
+  
+  .reset{
+    font:20px;
+}
   
   .square {
     background: #fff;

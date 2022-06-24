@@ -2,31 +2,29 @@ import React from 'react';
 import ReactDOM from 'react-dom/client';
 import './index.css';
 
-// 0. this is a class component, tutorial says its the child componet but idk why?
- // 1. render method is empty does that mean that it doesnt render anything and it just needs to be there?
- // 2. onClick passes a function i understand that but what purpose does {this.props.value} serve?
-class Square extends React.Component {
-    render() {
-      return (
-        <button 
-            className="square" 
-            onClick={()=> this.props.onClick({value:'x'})}
-        >
-          {this.props.value}
+// function reset (props){
+//     return(
+
+
+//     )
+// }
+
+function Square(props){
+    return(
+        <button className='square'
+        onClick={props.onClick}>
+            {props.value}
         </button>
-      );
-    }
-  }
-  
-//   3. this is a class component, its the parent component but idk why?
-//   4. squares: Array(9).fill(null is the same as writting squares: null, 9 times?)
-// left off on completing the game on the tutorial 
+    );
+}
   class Board extends React.Component {
       constructor(props){
           super(props);
           this.state={
-              squares: Array(9).fill(null,'x','o')
+              squares: Array(9).fill(null),
+              xIsNext: props.xIsNext
           }
+          console.log(props)
       }
     renderSquare(i) {
       return <Square 
@@ -34,9 +32,40 @@ class Square extends React.Component {
                 onClick={()=>this.handleClick(i)}
       />;
     }
-  
+    handleClick(i) {
+        const squares = this.state.squares.slice();
+        if (calculateWinner(squares) || squares[i]) {
+            return;
+          }
+        squares[i] = this.state.xIsNext ? 'x' :'o';
+        this.setState({
+            squares:squares,
+            xIsNext:!this.state.xIsNext,
+        });
+    }
+    // handleReset (i) {
+    //     const reset = this.state.squares;
+    //       reset[i] = this.state.squares;
+
+    // }
     render() {
-      const status = 'Next player: X';
+        const winner = calculateWinner(this.state.squares);
+        let status;
+        let newGame;
+        if (winner) {
+          status = 'Winner: ' + winner;
+          newGame = 
+          <>
+          <div className='reset'>
+          <button type="button"
+          onClick={this.handleReset}>
+          <label htmlFor="reset">New Game</label>
+          </button>
+          </div>
+          </>
+        } else {
+          status = 'Next player: ' + (this.state.xIsNext ? 'X' : 'O');
+        }
   
       return (
         <div>
@@ -56,6 +85,9 @@ class Square extends React.Component {
             {this.renderSquare(7)}
             {this.renderSquare(8)}
           </div>
+          <div className="reset">
+              {newGame}
+              </div>
         </div>
       );
     }
@@ -66,7 +98,9 @@ class Square extends React.Component {
       return (
         <div className="game">
           <div className="game-board">
-            <Board />
+            <Board 
+                xIsNext={true}
+            />
           </div>
           <div className="game-info">
             <div>{/* status */}</div>
@@ -76,9 +110,27 @@ class Square extends React.Component {
       );
     }
   }
+  function calculateWinner(squares) {
+    const lines = [
+      [0, 1, 2],
+      [3, 4, 5],
+      [6, 7, 8],
+      [0, 3, 6],
+      [1, 4, 7],
+      [2, 5, 8],
+      [0, 4, 8],
+      [2, 4, 6],
+    ];
+    for (let i = 0; i < lines.length; i++) {
+      const [a, b, c] = lines[i];
+      if (squares[a] && squares[a] === squares[b] && squares[a] === squares[c]) {
+        return squares[a];
+      }
+    }
+    return null;
+  }
   
   // ========================================
   
   const root = ReactDOM.createRoot(document.getElementById("root"));
   root.render(<Game />);
-  
